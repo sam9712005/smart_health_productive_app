@@ -1017,4 +1017,51 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get phone_validation_error => 'ಫೋನ್ ಸಂಖ್ಯೆ ನಿಖರವಾಗಿ 10 ಅಂಕೆಗಳು ಇರಬೇಕು';
+
+  @override
+  String get government_health_analytics => 'ಸರ್ಕಾರ ಆರೋಗ್ಯ ವಿಶ್ಲೇಷಣೆ';
+
+  @override
+  String get executive_summary => 'ಕಾರ್ಯಕಾರಿ ಸಾರಾಂಶ';
+
+  @override
+  String get key_performance_indicators => 'ಪ್ರಮುಖ ಕಾರ್ಯಕ್ಷಮತೆ ಸೂಚಕಗಳು';
+
+  @override
+  String get alert_response_analytics => 'ಎಚ್ಚರಿಕೆ ಮತ್ತು ಪ್ರತಿಕ್ರಿಯೆ ವಿಶ್ಲೇಷಣೆ';
+
+  @override
+  String get alert_severity_distribution => 'ಎಚ್ಚರಿಕೆ ಗಂಭೀರತೆ ವಿತರಣೆ';
+
+  @override
+  String get alert_status_distribution => 'ಎಚ್ಚರಿಕೆ ಸ್ಥಿತಿ ವಿತರಣೆ';
+
+  @override
+  String get ambulance_response_performance =>
+      'ಆಂಬುಲೆನ್ಸ್ ಪ್ರತಿಕ್ರಿಯೆ ಕಾರ್ಯಕ್ಷಮತೆ';
+
+  @override
+  String get digital_adoption_metrics => 'ಡಿಜಿಟಲ್ ಅವಲಂಬನೆ';
+
+  @override
+  String get hospital_infrastructure_status => 'ಆಸ್ಪತ್ರೆ ಮೂಲಭೂತ ಸೌಕರ್ಯ';
+
+  @override
+  String get download_complete_report => 'ಸಂಪೂರ್ಣ ವರದಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ (PDF)';
+
+  @override
+  String get health_emergency_response =>
+      'ಆರೋಗ್ಯ ತುರ್ತು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಣಾಲಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್';
+
+  @override
+  String get last_updated => 'ಕೊನೆಯ ಬಾರಿ ಅಪ್‌ಡೇಟ್:';
+
+  @override
+  String get total_sos_calls => 'ಒಟ್ಟು SOS ಕರೆಗಳು';
+
+  @override
+  String get completion_rate => 'ಪೂರ್ತಿ ದರ';
+
+  @override
+  String get avg_response_time => 'ಸರಾಸರಿ ಪ್ರತಿಕ್ರಿಯೆ ಸಮಯ';
 }

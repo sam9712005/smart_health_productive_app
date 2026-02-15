@@ -262,12 +262,23 @@ class HealthReportScreen extends StatelessWidget {
         Navigator.of(context).pop();
       }
 
+      // Provide more specific error messages
+      String errorMessage = 'Error downloading report';
+      
+      if (e.toString().contains('Storage permission')) {
+        errorMessage = 'Storage permission denied. Please enable it in app settings.';
+      } else if (e.toString().contains('permanently denied')) {
+        errorMessage = 'Storage permission permanently denied. Go to Settings > Permissions > Storage and enable it.';
+      } else if (e.toString().contains('Timeout')) {
+        errorMessage = 'Download timeout. Please try again.';
+      }
+
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error downloading report: ${e.toString()}'),
+          content: Text(errorMessage),
           backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 4),
         ),
       );
     }

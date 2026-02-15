@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/api_services.dart';
 import '../services/download_service.dart';
+import '../services/government_pdf_service.dart';
 import '../constants/app_colors.dart';
 import '../gen/l10n/app_localizations.dart';
 import 'login.dart';
@@ -20,14 +21,14 @@ class GovernmentDashboard extends StatefulWidget {
 
 class _GovernmentDashboardState extends State<GovernmentDashboard> {
   late Future<Map<String, dynamic>> _analyticsFuture;
-  late Timer _refreshTimer;
+  late Timer? _refreshTimer;
 
   @override
   void initState() {
     super.initState();
     _analyticsFuture = ApiService.getGovernmentAnalytics();
     
-    // Auto-refresh analytics every 30 seconds
+    // Auto-refresh analytics every 2 minutes
     _refreshTimer = Timer.periodic(const Duration(seconds: 120), (_) {
       if (mounted) {
         setState(() {
@@ -39,7 +40,7 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
 
   @override
   void dispose() {
-    _refreshTimer.cancel();
+    _refreshTimer?.cancel();
     super.dispose();
   }
 
@@ -51,10 +52,13 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     );
   }
 
-  Future<void> _downloadAnalyticsCSV() async {
+  Future<void> _downloadAnalyticsPDF() async {
     try {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preparing ETA Analysis Report...')),
+        const SnackBar(
+          content: Text('Generating Government Analytics Report PDF...'),
+          duration: Duration(seconds: 2),
+        ),
       );
 
       // Get JWT token from ApiService
@@ -67,170 +71,55 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
             const SnackBar(
               content: Text('Authentication required. Please login again.'),
               backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
             ),
           );
         }
         return;
       }
 
-      // Build the API URL
-      final apiUrl = '${ApiService.baseUrl}/government/download/analytics-csv';
-      print('[Download] URL: $apiUrl');
-      print('[Download] Token: ${authToken.substring(0, 20)}...');
+      // Get the latest analytics data
+      final data = await ApiService.getGovernmentAnalytics();
 
-      // Make HTTP request with JWT authentication
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'text/csv',
-        },
-      ).timeout(const Duration(seconds: 30));
+      // Generate PDF with all analytics data
+      final pdfBytes = await GovernmentPDFService.generateGovernmentAnalyticsPDF(data);
 
-      print('[Download] Status Code: ${response.statusCode}');
-      print('[Download] Response Length: ${response.bodyBytes.length} bytes');
-
-      if (response.statusCode == 200) {
-        print('[Download] CSV Data received: ${response.body.length} characters');
-
-        if (mounted) {
-          // Use unified DownloadService for cross-platform support
-          await DownloadService.downloadFile(
-            'ETA_Analysis_Report_${DateTime.now().millisecondsSinceEpoch}.csv',
-            response.bodyBytes,
-            mimeType: 'text/csv',
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Report downloaded successfully!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else if (response.statusCode == 403) {
-        print('[Download] Unauthorized - Status 403');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Unauthorized: Government access required'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } else {
-        print('[Download] Failed - Status ${response.statusCode}');
-        print('[Download] Response: ${response.body}');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Download failed: ${response.statusCode}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      print('[Download] Exception: $e');
       if (mounted) {
+        // Use unified DownloadService for cross-platform support
+        await DownloadService.downloadFile(
+          'Government_Analytics_Report_${DateTime.now().millisecondsSinceEpoch}.pdf',
+          pdfBytes.toList(),
+          mimeType: 'application/pdf',
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
+          const SnackBar(
+            content: Text('Analytics report downloaded successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
       }
-    }
-  }
-
-  Future<void> _downloadHospitalsCSV() async {
-    try {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Preparing Hospital Details Report...')),
-      );
-
-      // Get JWT token from ApiService
-      final authToken = await ApiService.getToken();
-      print('[Download] Token retrieved: ${authToken != null ? "YES" : "NO"}');
-
-      if (authToken == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Authentication required. Please login again.'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
-
-      // Build the API URL
-      final apiUrl = '${ApiService.baseUrl}/government/download/hospitals-csv';
-      print('[Download] URL: $apiUrl');
-      print('[Download] Token: ${authToken.substring(0, 20)}...');
-
-      // Make HTTP request with JWT authentication
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Authorization': 'Bearer $authToken',
-          'Content-Type': 'text/csv',
-        },
-      ).timeout(const Duration(seconds: 30));
-
-      print('[Download] Status Code: ${response.statusCode}');
-      print('[Download] Response Length: ${response.bodyBytes.length} bytes');
-
-      if (response.statusCode == 200) {
-        print('[Download] CSV Data received: ${response.body.length} characters');
-
-        if (mounted) {
-          // Use unified DownloadService for cross-platform support
-          await DownloadService.downloadFile(
-            'Hospital_Details_Report_${DateTime.now().millisecondsSinceEpoch}.csv',
-            response.bodyBytes,
-            mimeType: 'text/csv',
-          );
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Report downloaded successfully!'),
-              backgroundColor: Colors.green,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      } else if (response.statusCode == 403) {
-        print('[Download] Unauthorized - Status 403');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Unauthorized: Government access required'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      } else {
-        print('[Download] Failed - Status ${response.statusCode}');
-        print('[Download] Response: ${response.body}');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Download failed: ${response.statusCode}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
     } catch (e) {
       print('[Download] Exception: $e');
       if (mounted) {
+        // Provide more specific error messages
+        String errorMessage = 'Error downloading report';
+
+        if (e.toString().contains('Storage permission')) {
+          errorMessage = 'Storage permission denied. Please enable it in app settings.';
+        } else if (e.toString().contains('permanently denied')) {
+          errorMessage =
+              'Storage permission permanently denied. Go to Settings > Permissions > Storage and enable it.';
+        } else if (e.toString().contains('Timeout')) {
+          errorMessage = 'Download timeout. Please check your internet connection.';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -243,11 +132,11 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          loc.health_analytics,
-          style: TextStyle(fontWeight: FontWeight.w600, letterSpacing: 0.5),
+          'GOVERNMENT HEALTH ANALYTICS',
+          style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.5, fontSize: 18),
         ),
         backgroundColor: AppColors.primary,
-        elevation: 0,
+        elevation: 2,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_outlined),
@@ -260,6 +149,7 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.logout_outlined),
+            tooltip: 'Logout',
             onPressed: () => logout(context),
           ),
         ],
@@ -268,7 +158,16 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
         future: _analyticsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading Government Analytics...'),
+                ],
+              ),
+            );
           }
 
           if (snapshot.hasError) {
@@ -290,7 +189,7 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    '',
+                    'Failed to Load Analytics',
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -319,98 +218,320 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
 
           final data = snapshot.data!;
 
-          Widget buildRow(String label, String value) {
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              child: ListTile(
-                title: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            );
-          }
-
-          Widget buildNested(String label, Map m) {
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 8),
-                    ...m.keys.map((k) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(k),
-                              Text('${m[k]}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                            ],
-                          ),
-                        )),
-                  ],
-                ),
-              ),
-            );
-          }
-
           return SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  buildRow(loc.active_hospitals, '${data['active_hospitals'] ?? 0}'),
-                  buildRow(loc.ambulance_count, '${data['ambulance_count'] ?? 0}'),
-                  buildRow(loc.avg_eta, '${data['avg_eta'] ?? 0}'),
-                  buildRow(loc.completed_alerts, '${data['completed_alerts'] ?? 0}'),
-                  buildRow(loc.digital_adoption, '${data['digital_adoption'] ?? 0}'),
-                  buildRow(loc.icu_beds, '${data['icu_beds'] ?? 0}'),
-                  buildRow(loc.oxygen_hospitals, '${data['oxygen_hospitals'] ?? 0}'),
-                  buildRow(loc.registered_citizens, '${data['registered_citizens'] ?? 0}'),
-                  buildNested('ETA Statistics', Map<String, dynamic>.from(data['eta_statistics'] ?? {})),
-                  buildNested('Severity Distribution', Map<String, dynamic>.from(data['severity_distribution'] ?? {})),
-                  buildNested('Status Distribution', Map<String, dynamic>.from(data['status_distribution'] ?? {})),
-                  buildRow(loc.total_alerts, '${data['total_alerts'] ?? 0}'),
-                  buildRow(loc.total_beds, '${data['total_beds'] ?? 0}'),
-                  buildRow(loc.total_citizens, '${data['total_citizens'] ?? 0}'),
-                  const SizedBox(height: 20),
-                  // Download buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _downloadAnalyticsCSV,
-                          icon: const Icon(Icons.download_outlined),
-                          label: const Text('Download Analysis'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                  // Title Section
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Executive Summary',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _downloadHospitalsCSV,
-                          icon: const Icon(Icons.download_outlined),
-                          label: const Text('Download Hospitals'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Health Emergency Response System Dashboard',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 12,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        Text(
+                          'Last Updated: ${DateTime.now().toString().split('.')[0]}',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 20),
+
+                  // Key Metrics Section
+                  _buildSectionHeader('KEY PERFORMANCE INDICATORS'),
+                  const SizedBox(height: 12),
+                  _buildMetricsGrid([
+                    _buildMetricCard(
+                      'Active Hospitals',
+                      '${data['active_hospitals'] ?? '0'}',
+                      Icons.local_hospital,
+                      Colors.blue,
+                    ),
+                    _buildMetricCard(
+                      'Total Beds',
+                      '${data['total_beds'] ?? '0'}',
+                      Icons.bed,
+                      Colors.purple,
+                    ),
+                    _buildMetricCard(
+                      'ICU Beds',
+                      '${data['icu_beds'] ?? '0'}',
+                      Icons.medical_services,
+                      Colors.orange,
+                    ),
+                    _buildMetricCard(
+                      'Oxygen Hospitals',
+                      '${data['oxygen_hospitals'] ?? '0'}',
+                      Icons.air,
+                      Colors.teal,
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+
+                  // Alert Analytics Section
+                  _buildSectionHeader('ALERT & RESPONSE ANALYTICS'),
+                  const SizedBox(height: 12),
+                  _buildMetricsGrid([
+                    _buildMetricCard(
+                      'Total SOS Calls',
+                      '${data['total_alerts'] ?? '0'}',
+                      Icons.phone_in_talk,
+                      Colors.red,
+                    ),
+                    _buildMetricCard(
+                      'Completed',
+                      '${data['completed_alerts'] ?? '0'}',
+                      Icons.check_circle,
+                      Colors.green,
+                    ),
+                    _buildMetricCard(
+                      'Avg Response Time',
+                      '${data['avg_eta'] ?? '0'} min',
+                      Icons.schedule,
+                      Colors.indigo,
+                    ),
+                    _buildMetricCard(
+                      'Ambulances',
+                      '${data['ambulance_count'] ?? '0'}',
+                      Icons.local_taxi,
+                      Colors.amber,
+                    ),
+                  ]),
+                  const SizedBox(height: 20),
+
+                  // Completion Rate Card
+                  _buildCompletionRateCard(data),
+                  const SizedBox(height: 20),
+
+                  // Severity Distribution
+                  _buildSectionHeader('ALERT SEVERITY DISTRIBUTION'),
+                  const SizedBox(height: 12),
+                  _buildSeverityDistribution(data),
+                  const SizedBox(height: 20),
+
+                  // Status Distribution
+                  _buildSectionHeader('ALERT STATUS DISTRIBUTION'),
+                  const SizedBox(height: 12),
+                  _buildResponseStatus(data),
+                  const SizedBox(height: 20),
+
+                  // ETA Statistics
+                  _buildSectionHeader('AMBULANCE RESPONSE PERFORMANCE'),
+                  const SizedBox(height: 12),
+                  _buildEtaAnalytics(data),
+                  const SizedBox(height: 20),
+
+                  // Digital Adoption
+                  _buildSectionHeader('DIGITAL ADOPTION'),
+                  const SizedBox(height: 12),
+                  _buildEngagementMetrics(data),
+                  const SizedBox(height: 20),
+
+                  // Infrastructure Status
+                  _buildSectionHeader('HOSPITAL INFRASTRUCTURE'),
+                  const SizedBox(height: 12),
+                  _buildInfrastructureStatus(data),
+                  const SizedBox(height: 20),
+
+                  // Download Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _downloadAnalyticsPDF,
+                      icon: const Icon(Icons.download_outlined),
+                      label: const Text('Download Complete Report (PDF)'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.1),
+          border: Border(
+            left: BorderSide(color: AppColors.primary, width: 4),
+          ),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricCard(String label, String value, IconData icon, Color color) {
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetricsGrid(List<Widget> cards) {
+    return RepaintBoundary(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: cards[0]),
+              const SizedBox(width: 12),
+              Expanded(child: cards[1]),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: cards[2]),
+              const SizedBox(width: 12),
+              Expanded(child: cards[3]),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompletionRateCard(Map<String, dynamic> data) {
+    final completed = (data['completed_alerts'] ?? 0).toInt();
+    final total = (data['total_alerts'] ?? 1).toInt();
+    final completionRate = total > 0 ? (completed / total * 100) : 0.0;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.green[50]!, Colors.green[100]!],
+        ),
+        border: Border.all(color: Colors.green[300]!, width: 1.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Alert Completion Rate',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+              Icon(Icons.trending_up, color: Colors.green[600], size: 20),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: completionRate / 100,
+                    minHeight: 12,
+                    backgroundColor: Colors.green[200],
+                    valueColor: AlwaysStoppedAnimation(Colors.green[600]),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                '${completionRate.toStringAsFixed(1)}%',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '$completed of $total alerts completed',
+            style: TextStyle(fontSize: 11, color: Colors.grey[700]),
+          ),
+        ],
       ),
     );
   }
@@ -428,78 +549,6 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     }
   }
 
-  void _copyToClipboard(BuildContext context, String text) {
-    Clipboard.setData(ClipboardData(text: text));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('CSV data copied to clipboard!'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required String subtitle,
-    required List<Widget> children,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(6),
-            border: Border(
-              left: BorderSide(
-                color: Colors.blue[600]!,
-                width: 3,
-              ),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey[600],
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...children,
-      ],
-    );
-  }
-
-  Widget _buildMetricGrid(List<Widget> tiles) {
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 1.0,
-      children: tiles,
-    );
-  }
-
   Widget _buildSeverityDistribution(Map<String, dynamic> data) {
     final severity = data['severity_distribution'] ?? {};
     final low = (severity['low'] ?? 0).toDouble();
@@ -507,30 +556,32 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     final high = (severity['high'] ?? 0).toDouble();
     final total = low + medium + high;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Alert Severity Distribution',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _SeverityBar('Low Risk', total > 0 ? (low / total) * 100 : 0, Colors.green),
-          const SizedBox(height: 12),
-          _SeverityBar(
-              'Medium Risk', total > 0 ? (medium / total) * 100 : 0, Colors.orange),
-          const SizedBox(height: 12),
-          _SeverityBar('High Risk', total > 0 ? (high / total) * 100 : 0, Colors.red),
-          const SizedBox(height: 16),
-          Text(
-            'Total Alerts: ${low.toInt() + medium.toInt() + high.toInt()}',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Alert Severity Distribution',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _SeverityBar('Low Risk', total > 0 ? (low / total) * 100 : 0, Colors.green),
+            const SizedBox(height: 12),
+            _SeverityBar(
+                'Medium Risk', total > 0 ? (medium / total) * 100 : 0, Colors.orange),
+            const SizedBox(height: 12),
+            _SeverityBar('High Risk', total > 0 ? (high / total) * 100 : 0, Colors.red),
+            const SizedBox(height: 16),
+            Text(
+              'Total Alerts: ${low.toInt() + medium.toInt() + high.toInt()}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -573,7 +624,6 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
 
   Widget _buildEngagementMetrics(Map<String, dynamic> data) {
     final avgEta = data['avg_eta'] ?? 0;
-    // Build dynamic values from API data; avoid hard-coded placeholders
     final totalAlerts = (data['total_alerts'] ?? 0).toString();
     final totalCitizens = (data['total_citizens'] ?? 0).toString();
     final avgEtaStr = (avgEta ?? 0).toString();
@@ -591,20 +641,22 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
       }
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _MetricRow('Total SOS Calls', totalAlerts, '📞'),
-          _MetricRow('Active Citizens', totalCitizens, '🏥'),
-          _MetricRow('Avg Response Time', '$avgEtaStr min', '⏱️'),
-          _MetricRow('Digital Adoption', digitalAdoptionStr, '📱'),
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _MetricRow('Total SOS Calls', totalAlerts, '📞'),
+            _MetricRow('Active Citizens', totalCitizens, '🏥'),
+            _MetricRow('Avg Response Time', '$avgEtaStr min', '⏱️'),
+            _MetricRow('Digital Adoption', digitalAdoptionStr, '📱'),
+          ],
+        ),
       ),
     );
   }
@@ -613,23 +665,25 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     final totalBeds = data['total_beds'] ?? 0;
     final icuBeds = data['icu_beds'] ?? 0;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Hospital Infrastructure Status',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _InfraRow('Total Hospital Beds', '$totalBeds', Colors.blue),
-          _InfraRow('ICU Beds', '$icuBeds', Colors.orange),
-          _InfraRow('Oxygen-Ready Hospitals', '${data['oxygen_hospitals'] ?? 0}', Colors.red),
-          _InfraRow('Active Hospitals', '${data['active_hospitals'] ?? 0}', Colors.green),
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Hospital Infrastructure Status',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _InfraRow('Total Hospital Beds', '$totalBeds', Colors.blue),
+            _InfraRow('ICU Beds', '$icuBeds', Colors.orange),
+            _InfraRow('Oxygen-Ready Hospitals', '${data['oxygen_hospitals'] ?? 0}', Colors.red),
+            _InfraRow('Active Hospitals', '${data['active_hospitals'] ?? 0}', Colors.green),
+          ],
+        ),
       ),
     );
   }
@@ -677,23 +731,25 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
 
   Widget _buildEtaAnalytics(Map<String, dynamic> data) {
     final etaStats = data['eta_statistics'] ?? {};
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Ambulance Response Performance',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _StatRow('Mean ETA', '${etaStats['mean'] ?? 'N/A'} min'),
-          _StatRow('Median ETA', '${etaStats['median'] ?? 'N/A'} min'),
-          _StatRow('95th Percentile', '${etaStats['p95'] ?? 'N/A'} min'),
-          _StatRow('Max ETA Recorded', '${etaStats['max'] ?? 'N/A'} min'),
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Ambulance Response Performance',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _StatRow('Mean ETA', '${etaStats['mean'] ?? 'N/A'} min'),
+            _StatRow('Median ETA', '${etaStats['median'] ?? 'N/A'} min'),
+            _StatRow('95th Percentile', '${etaStats['p95'] ?? 'N/A'} min'),
+            _StatRow('Max ETA Recorded', '${etaStats['max'] ?? 'N/A'} min'),
+          ],
+        ),
       ),
     );
   }
@@ -705,27 +761,29 @@ class _GovernmentDashboardState extends State<GovernmentDashboard> {
     final arrived = statusDist['arrived'] ?? 0;
     final completed = data['completed_alerts'] ?? 0;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        border: Border.all(color: Colors.blue[300]!),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Alert Status Distribution',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          _StatusBadge('Dispatched', '$dispatched', Colors.orange),
-          const SizedBox(height: 8),
-          _StatusBadge('On The Way', '$onTheWay', Colors.blue),
-          const SizedBox(height: 8),
-          _StatusBadge('Arrived', '$arrived', Colors.green),
-          const SizedBox(height: 8),
-          _StatusBadge('Completed', '$completed', Colors.grey),
-        ],
+    return RepaintBoundary(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          border: Border.all(color: Colors.blue[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Alert Status Distribution',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            _StatusBadge('Dispatched', '$dispatched', Colors.orange),
+            const SizedBox(height: 8),
+            _StatusBadge('On The Way', '$onTheWay', Colors.blue),
+            const SizedBox(height: 8),
+            _StatusBadge('Arrived', '$arrived', Colors.green),
+            const SizedBox(height: 8),
+            _StatusBadge('Completed', '$completed', Colors.grey),
+          ],
+        ),
       ),
     );
   }
@@ -778,15 +836,15 @@ class _MetricTile extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.desc,
-  });
+  }) : super();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color.withOpacity(0.3)),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -820,7 +878,7 @@ class _SeverityBar extends StatelessWidget {
   final double percentage;
   final Color color;
 
-  const _SeverityBar(this.label, this.percentage, this.color);
+  const _SeverityBar(this.label, this.percentage, this.color) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -852,7 +910,7 @@ class _MetricRow extends StatelessWidget {
   final String value;
   final String emoji;
 
-  const _MetricRow(this.label, this.value, this.emoji);
+  const _MetricRow(this.label, this.value, this.emoji) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -880,7 +938,7 @@ class _InfraRow extends StatelessWidget {
   final String value;
   final Color color;
 
-  const _InfraRow(this.label, this.value, this.color);
+  const _InfraRow(this.label, this.value, this.color) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -914,7 +972,7 @@ class _StatRow extends StatelessWidget {
   final String label;
   final String value;
 
-  const _StatRow(this.label, this.value);
+  const _StatRow(this.label, this.value) : super();
 
   @override
   Widget build(BuildContext context) {
@@ -936,15 +994,15 @@ class _StatusBadge extends StatelessWidget {
   final String count;
   final Color color;
 
-  const _StatusBadge(this.status, this.count, this.color);
+  const _StatusBadge(this.status, this.count, this.color) : super();
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
+        color: color.withOpacity(0.1),
+        border: Border.all(color: color.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

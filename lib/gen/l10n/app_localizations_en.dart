@@ -1009,4 +1009,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phone_validation_error => 'Phone number must be exactly 10 digits';
+
+  @override
+  String get government_health_analytics => 'GOVERNMENT HEALTH ANALYTICS';
+
+  @override
+  String get executive_summary => 'Executive Summary';
+
+  @override
+  String get key_performance_indicators => 'KEY PERFORMANCE INDICATORS';
+
+  @override
+  String get alert_response_analytics => 'ALERT & RESPONSE ANALYTICS';
+
+  @override
+  String get alert_severity_distribution => 'ALERT SEVERITY DISTRIBUTION';
+
+  @override
+  String get alert_status_distribution => 'ALERT STATUS DISTRIBUTION';
+
+  @override
+  String get ambulance_response_performance => 'AMBULANCE RESPONSE PERFORMANCE';
+
+  @override
+  String get digital_adoption_metrics => 'DIGITAL ADOPTION';
+
+  @override
+  String get hospital_infrastructure_status => 'HOSPITAL INFRASTRUCTURE';
+
+  @override
+  String get download_complete_report => 'Download Complete Report (PDF)';
+
+  @override
+  String get health_emergency_response =>
+      'Health Emergency Response System Dashboard';
+
+  @override
+  String get last_updated => 'Last Updated:';
+
+  @override
+  String get total_sos_calls => 'Total SOS Calls';
+
+  @override
+  String get completion_rate => 'Completion Rate';
+
+  @override
+  String get avg_response_time => 'Avg Response Time';
 }

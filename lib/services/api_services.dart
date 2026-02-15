@@ -1,14 +1,11 @@
-import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
 import 'secure_storage.dart';
 
 class ApiService {
-  // static const baseUrl = "";
-  static const baseUrl = "http://127.0.0.1:5000";
+  static const baseUrl = "https://smarthealthproductiveapp-production.up.railway.app/";
+  // static const baseUrl = "http://127.0.0.1:5000";
   static String? token;
 
   // Get token from secure storage or static variable

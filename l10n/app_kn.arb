@@ -337,5 +337,20 @@
   "download_failed": "ಡೌನ್‌ಲೋಡ್ ವಿಫಲವಾಗಿದೆ: ",
   "password_validation_error": "ಪಾಸ್‌ವರ್ಡ್ 6+ ಅಕ್ಷರಗಳು, ವಿಶೇಷ ಅಕ್ಷರ ಮತ್ತು ದೊಡ್ಡ ವರ್ಣಾಕ್ಷರದೊಂದಿಗೆ ಪ್ರಾರಂಭವಾಗಬೇಕು",
   "email_validation_error": "ಇಮೇಲ್ '@' ಚಿಹ್ನೆ ಹೊಂದಿರಬೇಕು",
-  "phone_validation_error": "ಫೋನ್ ಸಂಖ್ಯೆ ನಿಖರವಾಗಿ 10 ಅಂಕೆಗಳು ಇರಬೇಕು"
+  "phone_validation_error": "ಫೋನ್ ಸಂಖ್ಯೆ ನಿಖರವಾಗಿ 10 ಅಂಕೆಗಳು ಇರಬೇಕು",
+  "government_health_analytics": "ಸರ್ಕಾರ ಆರೋಗ್ಯ ವಿಶ್ಲೇಷಣೆ",
+  "executive_summary": "ಕಾರ್ಯಕಾರಿ ಸಾರಾಂಶ",
+  "key_performance_indicators": "ಪ್ರಮುಖ ಕಾರ್ಯಕ್ಷಮತೆ ಸೂಚಕಗಳು",
+  "alert_response_analytics": "ಎಚ್ಚರಿಕೆ ಮತ್ತು ಪ್ರತಿಕ್ರಿಯೆ ವಿಶ್ಲೇಷಣೆ",
+  "alert_severity_distribution": "ಎಚ್ಚರಿಕೆ ಗಂಭೀರತೆ ವಿತರಣೆ",
+  "alert_status_distribution": "ಎಚ್ಚರಿಕೆ ಸ್ಥಿತಿ ವಿತರಣೆ",
+  "ambulance_response_performance": "ಆಂಬುಲೆನ್ಸ್ ಪ್ರತಿಕ್ರಿಯೆ ಕಾರ್ಯಕ್ಷಮತೆ",
+  "digital_adoption_metrics": "ಡಿಜಿಟಲ್ ಅವಲಂಬನೆ",
+  "hospital_infrastructure_status": "ಆಸ್ಪತ್ರೆ ಮೂಲಭೂತ ಸೌಕರ್ಯ",
+  "download_complete_report": "ಸಂಪೂರ್ಣ ವರದಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ (PDF)",
+  "health_emergency_response": "ಆರೋಗ್ಯ ತುರ್ತು ಪ್ರತಿಕ್ರಿಯೆ ಪ್ರಣಾಲಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+  "last_updated": "ಕೊನೆಯ ಬಾರಿ ಅಪ್‌ಡೇಟ್:",
+  "total_sos_calls": "ಒಟ್ಟು SOS ಕರೆಗಳು",
+  "completion_rate": "ಪೂರ್ತಿ ದರ",
+  "avg_response_time": "ಸರಾಸರಿ ಪ್ರತಿಕ್ರಿಯೆ ಸಮಯ"
 }

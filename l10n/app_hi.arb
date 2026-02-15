@@ -327,5 +327,20 @@
   "report_downloaded": "रिपोर्ट सफलतापूर्वक डाउनलोड हुई!",
   "authentication_required": "प्रमाणीकरण आवश्यक है। कृपया फिर से लॉगिन करें।",
   "unauthorized": "अनधिकृत: सरकारी पहुंच आवश्यक है",
-  "download_failed": "डाउनलोड विफल: "
+  "download_failed": "डाउनलोड विफल: ",
+  "government_health_analytics": "सरकारी स्वास्थ्य विश्लेषण",
+  "executive_summary": "कार्यकारी सारांश",
+  "key_performance_indicators": "मुख्य प्रदर्शन संकेतक",
+  "alert_response_analytics": "सतर्कता और प्रतिक्रिया विश्लेषण",
+  "alert_severity_distribution": "सतर्कता गंभीरता वितरण",
+  "alert_status_distribution": "सतर्कता स्थिति वितरण",
+  "ambulance_response_performance": "एम्बुलेंस प्रतिक्रिया प्रदर्शन",
+  "digital_adoption_metrics": "डिजिटल अवलंबन",
+  "hospital_infrastructure_status": "अस्पताल बुनियादी ढांचा",
+  "download_complete_report": "संपूर्ण रिपोर्ट डाउनलोड करें (PDF)",
+  "health_emergency_response": "स्वास्थ्य आपातकालीन प्रतिक्रिया प्रणाली डैशबोर्ड",
+  "last_updated": "अंतिम अपडेट:",
+  "total_sos_calls": "कुल SOS कॉल",
+  "completion_rate": "पूर्णता दर",
+  "avg_response_time": "औसत प्रतिक्रिया समय"
 }

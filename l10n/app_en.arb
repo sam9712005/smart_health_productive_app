@@ -337,5 +337,20 @@
   "download_failed": "Download failed: ",
   "password_validation_error": "Password must have 6+ characters, a special character, and start with uppercase",
   "email_validation_error": "Email must contain '@' symbol",
-  "phone_validation_error": "Phone number must be exactly 10 digits"
+  "phone_validation_error": "Phone number must be exactly 10 digits",
+  "government_health_analytics": "GOVERNMENT HEALTH ANALYTICS",
+  "executive_summary": "Executive Summary",
+  "key_performance_indicators": "KEY PERFORMANCE INDICATORS",
+  "alert_response_analytics": "ALERT & RESPONSE ANALYTICS",
+  "alert_severity_distribution": "ALERT SEVERITY DISTRIBUTION",
+  "alert_status_distribution": "ALERT STATUS DISTRIBUTION",
+  "ambulance_response_performance": "AMBULANCE RESPONSE PERFORMANCE",
+  "digital_adoption_metrics": "DIGITAL ADOPTION",
+  "hospital_infrastructure_status": "HOSPITAL INFRASTRUCTURE",
+  "download_complete_report": "Download Complete Report (PDF)",
+  "health_emergency_response": "Health Emergency Response System Dashboard",
+  "last_updated": "Last Updated:",
+  "total_sos_calls": "Total SOS Calls",
+  "completion_rate": "Completion Rate",
+  "avg_response_time": "Avg Response Time"
 }

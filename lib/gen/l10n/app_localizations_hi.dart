@@ -1010,4 +1010,50 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get phone_validation_error => 'Phone number must be exactly 10 digits';
+
+  @override
+  String get government_health_analytics => 'सरकारी स्वास्थ्य विश्लेषण';
+
+  @override
+  String get executive_summary => 'कार्यकारी सारांश';
+
+  @override
+  String get key_performance_indicators => 'मुख्य प्रदर्शन संकेतक';
+
+  @override
+  String get alert_response_analytics => 'सतर्कता और प्रतिक्रिया विश्लेषण';
+
+  @override
+  String get alert_severity_distribution => 'सतर्कता गंभीरता वितरण';
+
+  @override
+  String get alert_status_distribution => 'सतर्कता स्थिति वितरण';
+
+  @override
+  String get ambulance_response_performance => 'एम्बुलेंस प्रतिक्रिया प्रदर्शन';
+
+  @override
+  String get digital_adoption_metrics => 'डिजिटल अवलंबन';
+
+  @override
+  String get hospital_infrastructure_status => 'अस्पताल बुनियादी ढांचा';
+
+  @override
+  String get download_complete_report => 'संपूर्ण रिपोर्ट डाउनलोड करें (PDF)';
+
+  @override
+  String get health_emergency_response =>
+      'स्वास्थ्य आपातकालीन प्रतिक्रिया प्रणाली डैशबोर्ड';
+
+  @override
+  String get last_updated => 'अंतिम अपडेट:';
+
+  @override
+  String get total_sos_calls => 'कुल SOS कॉल';
+
+  @override
+  String get completion_rate => 'पूर्णता दर';
+
+  @override
+  String get avg_response_time => 'औसत प्रतिक्रिया समय';
 }

@@ -329,5 +329,20 @@
   "download_failed": "डाउनलोड अयशस्वी: ",
   "password_validation_error": "पासवर्डमध्ये 6+ अक्षर, विशेष अक्षर आणि मोठे अक्षराने सुरू असणे आवश्यक आहे",
   "email_validation_error": "ईमेलमध्ये '@' चिन्ह असणे आवश्यक आहे",
-  "phone_validation_error": "फोन नंबर अचूक 10 अंक असणे आवश्यक आहे"
+  "phone_validation_error": "फोन नंबर अचूक 10 अंक असणे आवश्यक आहे",
+  "government_health_analytics": "सरकारी आरोग्य विश्लेषण",
+  "executive_summary": "कार्यकारी सारांश",
+  "key_performance_indicators": "मुख्य कार्यप्रदर्शन सूचक",
+  "alert_response_analytics": "सतर्कता आणि प्रतिक्रिया विश्लेषण",
+  "alert_severity_distribution": "सतर्कता गंभीरता वितरण",
+  "alert_status_distribution": "सतर्कता स्थिती वितरण",
+  "ambulance_response_performance": "रुग्णवाहिका प्रतिक्रिया कार्यप्रदर्शन",
+  "digital_adoption_metrics": "डिजिटल स्वीकृती",
+  "hospital_infrastructure_status": "रुग्णालय अवस्थापना",
+  "download_complete_report": "संपूर्ण अहवाल डाउनलोड करा (PDF)",
+  "health_emergency_response": "आरोग्य आपातकालीन प्रतिक्रिया प्रणाली डॅशबोर्ड",
+  "last_updated": "शेवटी अपडेट केले:",
+  "total_sos_calls": "एकूण SOS कॉल",
+  "completion_rate": "पूर्णता दर",
+  "avg_response_time": "सरासरी प्रतिक्रिया वेळ"
 }

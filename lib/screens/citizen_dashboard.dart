@@ -73,8 +73,15 @@ class _CitizenDashboardState extends State<CitizenDashboard> {
         centerTitle: false,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh_outlined, color: Colors.white),
+            tooltip: 'Refresh',
+            onPressed: () {
+              setState(() {});
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.person_outline, color: Colors.white),
-            tooltip: loc.edit_profile,
+            tooltip: 'Edit Profile',
             onPressed: () {
               Navigator.push(
                 context,
@@ -84,7 +91,7 @@ class _CitizenDashboardState extends State<CitizenDashboard> {
           ),
           IconButton(
             icon: const Icon(Icons.logout_outlined, color: Colors.white),
-            tooltip: loc.logout,
+            tooltip: 'Logout',
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,

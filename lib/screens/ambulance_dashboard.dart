@@ -111,6 +111,15 @@ class _AmbulanceDashboardState extends State<AmbulanceDashboard> {
         elevation: 0,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh_outlined),
+            tooltip: 'Refresh',
+            onPressed: () {
+              setState(() {
+                _casesFuture = ApiService.getAmbulanceCases();
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout_outlined),
             onPressed: () => logout(context),
           ),

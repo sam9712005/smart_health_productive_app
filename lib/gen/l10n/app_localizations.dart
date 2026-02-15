@@ -2075,6 +2075,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Phone number must be exactly 10 digits'**
   String get phone_validation_error;
+
+  /// No description provided for @government_health_analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'GOVERNMENT HEALTH ANALYTICS'**
+  String get government_health_analytics;
+
+  /// No description provided for @executive_summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Executive Summary'**
+  String get executive_summary;
+
+  /// No description provided for @key_performance_indicators.
+  ///
+  /// In en, this message translates to:
+  /// **'KEY PERFORMANCE INDICATORS'**
+  String get key_performance_indicators;
+
+  /// No description provided for @alert_response_analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'ALERT & RESPONSE ANALYTICS'**
+  String get alert_response_analytics;
+
+  /// No description provided for @alert_severity_distribution.
+  ///
+  /// In en, this message translates to:
+  /// **'ALERT SEVERITY DISTRIBUTION'**
+  String get alert_severity_distribution;
+
+  /// No description provided for @alert_status_distribution.
+  ///
+  /// In en, this message translates to:
+  /// **'ALERT STATUS DISTRIBUTION'**
+  String get alert_status_distribution;
+
+  /// No description provided for @ambulance_response_performance.
+  ///
+  /// In en, this message translates to:
+  /// **'AMBULANCE RESPONSE PERFORMANCE'**
+  String get ambulance_response_performance;
+
+  /// No description provided for @digital_adoption_metrics.
+  ///
+  /// In en, this message translates to:
+  /// **'DIGITAL ADOPTION'**
+  String get digital_adoption_metrics;
+
+  /// No description provided for @hospital_infrastructure_status.
+  ///
+  /// In en, this message translates to:
+  /// **'HOSPITAL INFRASTRUCTURE'**
+  String get hospital_infrastructure_status;
+
+  /// No description provided for @download_complete_report.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Complete Report (PDF)'**
+  String get download_complete_report;
+
+  /// No description provided for @health_emergency_response.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Emergency Response System Dashboard'**
+  String get health_emergency_response;
+
+  /// No description provided for @last_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Updated:'**
+  String get last_updated;
+
+  /// No description provided for @total_sos_calls.
+  ///
+  /// In en, this message translates to:
+  /// **'Total SOS Calls'**
+  String get total_sos_calls;
+
+  /// No description provided for @completion_rate.
+  ///
+  /// In en, this message translates to:
+  /// **'Completion Rate'**
+  String get completion_rate;
+
+  /// No description provided for @avg_response_time.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Response Time'**
+  String get avg_response_time;
 }
 
 class _AppLocalizationsDelegate

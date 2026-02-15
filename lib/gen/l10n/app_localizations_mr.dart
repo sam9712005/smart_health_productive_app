@@ -1011,4 +1011,51 @@ class AppLocalizationsMr extends AppLocalizations {
 
   @override
   String get phone_validation_error => 'फोन नंबर अचूक 10 अंक असणे आवश्यक आहे';
+
+  @override
+  String get government_health_analytics => 'सरकारी आरोग्य विश्लेषण';
+
+  @override
+  String get executive_summary => 'कार्यकारी सारांश';
+
+  @override
+  String get key_performance_indicators => 'मुख्य कार्यप्रदर्शन सूचक';
+
+  @override
+  String get alert_response_analytics => 'सतर्कता आणि प्रतिक्रिया विश्लेषण';
+
+  @override
+  String get alert_severity_distribution => 'सतर्कता गंभीरता वितरण';
+
+  @override
+  String get alert_status_distribution => 'सतर्कता स्थिती वितरण';
+
+  @override
+  String get ambulance_response_performance =>
+      'रुग्णवाहिका प्रतिक्रिया कार्यप्रदर्शन';
+
+  @override
+  String get digital_adoption_metrics => 'डिजिटल स्वीकृती';
+
+  @override
+  String get hospital_infrastructure_status => 'रुग्णालय अवस्थापना';
+
+  @override
+  String get download_complete_report => 'संपूर्ण अहवाल डाउनलोड करा (PDF)';
+
+  @override
+  String get health_emergency_response =>
+      'आरोग्य आपातकालीन प्रतिक्रिया प्रणाली डॅशबोर्ड';
+
+  @override
+  String get last_updated => 'शेवटी अपडेट केले:';
+
+  @override
+  String get total_sos_calls => 'एकूण SOS कॉल';
+
+  @override
+  String get completion_rate => 'पूर्णता दर';
+
+  @override
+  String get avg_response_time => 'सरासरी प्रतिक्रिया वेळ';
 }
