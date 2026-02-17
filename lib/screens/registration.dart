@@ -228,9 +228,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "password": passCtrl.text,
       };
 
-      // Add phone only for non-government roles
+      // Add email for citizen and hospital (required), and optional for government
       if (role != "government") {
+        data["email"] = emailCtrl.text;
         data["phone"] = phoneCtrl.text;
+      } else if (emailCtrl.text.isNotEmpty) {
+        // For government, email is optional but add if provided
+        data["email"] = emailCtrl.text;
       }
 
       if (role == "citizen") {

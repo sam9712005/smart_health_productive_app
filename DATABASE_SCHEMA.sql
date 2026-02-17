@@ -2,7 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     role VARCHAR(20) NOT NULL CHECK (role IN ('citizen', 'hospital', 'government', 'ambulance')),
     name VARCHAR(120) NOT NULL,
-    email VARCHAR(120) UNIQUE,
+    email VARCHAR(120),
     phone VARCHAR(20),
     profile_pic TEXT,
     password TEXT NOT NULL,
@@ -19,6 +19,7 @@ CREATE TABLE citizens (
     user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     sex VARCHAR(10),
     phone VARCHAR(20),
+    email VARCHAR(120),
     latitude FLOAT,
     longitude FLOAT,
     profile_pic TEXT,  
@@ -38,6 +39,7 @@ CREATE TABLE hospitals (
 
     -- Basic info
     phone VARCHAR(20),
+    email VARCHAR(120),
     latitude FLOAT,
     longitude FLOAT,
     profile_pic TEXT,
@@ -145,10 +147,6 @@ CREATE TABLE severities (
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE severities
-ADD COLUMN risk_percentage INTEGER,
-ADD COLUMN report_generated BOOLEAN DEFAULT FALSE;
-
 
 
 CREATE INDEX IF NOT EXISTS idx_severities_max_severity ON severities(max_severity);
@@ -178,7 +176,7 @@ CREATE TABLE ambulance_alerts (
 	last_location_update TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	delivered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	delivered_at TIMESTAMP DEFAULT NULL
 );
 
 CREATE INDEX idx_ambulance_alerts_speed ON ambulance_alerts(ambulance_speed_kmh);
@@ -187,6 +185,33 @@ CREATE INDEX idx_ambulance_alerts_citizen_id ON ambulance_alerts(citizen_id);
 CREATE INDEX idx_ambulance_alerts_hospital_id ON ambulance_alerts(hospital_id);
 CREATE INDEX idx_ambulance_alerts_status ON ambulance_alerts(status);
 CREATE INDEX idx_ambulance_alerts_created_at ON ambulance_alerts(created_at DESC);
+
+-- Create function to auto-update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = CURRENT_TIMESTAMP;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_users_timestamp BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+CREATE TRIGGER update_citizens_timestamp BEFORE UPDATE ON citizens
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+CREATE TRIGGER update_hospitals_timestamp BEFORE UPDATE ON hospitals
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+CREATE TRIGGER update_severities_timestamp BEFORE UPDATE ON severities
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+CREATE TRIGGER update_ambulance_alerts_timestamp BEFORE UPDATE ON ambulance_alerts
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
+
+CREATE TRIGGER update_government_analysis_timestamp BEFORE UPDATE ON government_analysis
+FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
 CREATE TABLE government_analysis (
     id SERIAL PRIMARY KEY,

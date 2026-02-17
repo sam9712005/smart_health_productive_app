@@ -13,12 +13,34 @@ logger = logging.getLogger(__name__)
 def register():
     try:
         data = request.json
+        print(f"[Register] Received data: {data}")
+        print(f"[Register] Request headers: {dict(request.headers)}")
         
         # Validate required fields
         if not data or not data.get("role") or not data.get("name") or not data.get("password"):
-            return jsonify(error="Missing required fields: role, name, password"), 400
+            missing = []
+            if not data:
+                missing.append("request body")
+            if not data or not data.get("role"):
+                missing.append("role")
+            if not data or not data.get("name"):
+                missing.append("name")
+            if not data or not data.get("password"):
+                missing.append("password")
+            error_msg = f"Missing required fields: {', '.join(missing)}"
+            print(f"[Register] Validation failed: {error_msg}")
+            return jsonify(error=error_msg), 400
         
-        # Check if user with same email already exists
+        # Email is mandatory for citizen and hospital, optional for government
+        role = data.get("role")
+        if role in ["citizen", "hospital"]:
+            if not data.get("email"):
+                print(f"[Register] Email missing for role: {role}")
+                return jsonify(error=f"Email is required for {role}"), 400
+        
+        print(f"[Register] Validation passed. Role: {role}, Name: {data.get('name')}")
+        
+        # Check if user with same email already exists (only if email provided)
         if data.get("email") and User.query.filter_by(email=data.get("email")).first():
             return jsonify(error="Email already registered"), 409
         
@@ -29,9 +51,9 @@ def register():
         user = User(
             role=data["role"],
             name=data["name"],
-            email=data.get("email") or None,
+            email=data.get("email"),
             phone=data.get("phone"),
-            profile_pic=data.get("profile_pic"),  # base64 encoded image
+            profile_pic=data.get("profile_pic"),  
             password=generate_password_hash(data["password"])
         )
         db.session.add(user)
@@ -45,6 +67,7 @@ def register():
             citizen = Citizen(
                 user_id=user.id,
                 phone=data.get("phone"),
+                email=data.get("email"),
                 sex=data.get("sex"),
                 latitude=lat,
                 longitude=lng,
@@ -59,6 +82,7 @@ def register():
             hospital = Hospital(
                 user_id=user.id,
                 phone=data.get("phone"),
+                email=data.get("email"),
                 latitude=lat,
                 longitude=lng,
                 total_beds=data.get("total_beds", 0),

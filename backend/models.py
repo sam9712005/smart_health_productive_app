@@ -8,7 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     role = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)
+    email = db.Column(db.String(120), nullable=True)
     phone = db.Column(db.String(20))
     profile_pic = db.Column(db.Text)  # base64 encoded image
     password = db.Column(db.Text, nullable=False)
@@ -18,9 +18,10 @@ class User(db.Model):
 class Citizen(db.Model):
     __tablename__ = 'citizens'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
     sex = db.Column(db.String(10))
     phone = db.Column(db.String(20))
+    email = db.Column(db.String(120), nullable=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     profile_pic = db.Column(db.Text)  # base64 encoded image
@@ -30,8 +31,9 @@ class Citizen(db.Model):
 class Hospital(db.Model):
     __tablename__ = 'hospitals'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, unique=True)
     phone = db.Column(db.String(20))
+    email = db.Column(db.String(120), nullable=True)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     total_beds = db.Column(db.Integer, default=0)
